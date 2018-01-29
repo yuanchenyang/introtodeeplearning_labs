@@ -5,7 +5,7 @@ import glob
 
 def create_dataset(min_length):
     songs = glob.glob('data/*.mid*')
-    
+
     encoded_songs = []
     discarded = 0
     for song in songs:
@@ -19,9 +19,19 @@ def create_dataset(min_length):
     print("{} songs discarded".format(discarded))
     return encoded_songs
 
+def get_song_list(min_length):
+    songs = glob.glob('data/*.mid*')
+    output = []
+    discarded = 0
+    for song in songs:
+        es = make_one_hot_notes(mm.midiToNoteStateMatrix(song))
+        if len(es) >= min_length:
+            output.append(song)
+    return output
+
 def make_one_hot_notes(song):
     """
-    Makes the song one_hot by choosing the highest note 
+    Makes the song one_hot by choosing the highest note
     from each chord (presumably the melody)
     """
     new_song = np.zeros(song.shape)
@@ -33,7 +43,7 @@ def make_one_hot_notes(song):
 
 
 def get_batch(encoded_songs, batch_size, timesteps, input_size, output_size):
-    
+
     rand_song_indices = np.random.randint(len(encoded_songs), size=batch_size)
     batch_x = np.zeros((batch_size, timesteps, input_size))
     batch_y = np.zeros((batch_size, output_size))
